@@ -5,20 +5,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+import shutil
 import logging
 import time
-import openpyxl
 
-def read_credentials_from_excel(file_path):
-    wb = openpyxl.load_workbook(file_path)
-    sheet = wb['Sheet1']
-    credentials = []
-    for row in sheet.iter_rows(min_row=2, values_only=True):
-        if row[0] and row[1]:
-            credentials.append((row[0], row[1]))
-    return credentials
-
-user_credentials = read_credentials_from_excel("users.xlsx")
+user_credentials = [
+    ("lookscool", "Senthil@2004"),
+    ("senthil", "senthil@2004"),
+    ("sugan", "sugan@2004")
+]
 
 @pytest.mark.parametrize("userna,passw", user_credentials)
 def test_demoblaze_parallel(userna, passw):
@@ -29,7 +26,10 @@ def test_demoblaze_parallel(userna, passw):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-    driver = webdriver.Firefox()
+    binary_path = shutil.which("firefox")
+    options = Options()
+    options.binary = FirefoxBinary(binary_path)
+    driver = webdriver.Firefox(options=options)
     driver.maximize_window()
 
     try:
